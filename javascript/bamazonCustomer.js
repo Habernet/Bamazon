@@ -99,12 +99,17 @@ function bamazon() {
             name: 'number',
             message: ("How many would you like to buy? (type the number): ")
         };
+        const prompts = [firstQuestion, secondQuestion ]
 
+
+        var itemToBuy;
+        var quantityToBuy;
         inquirer
-            .prompt([firstQuestion])
+            .prompt(prompts)
             .then(answers => {
-                console.log(answers);
-                // console log the answer...
+                itemToBuy = answers.purchase;
+                quantityToBuy = answers.number;
+                console.log(itemToBuy, quantityToBuy);
                 // Ask another question...then query the DB!
             });
     });
