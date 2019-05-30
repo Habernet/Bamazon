@@ -9,7 +9,7 @@ dotenv.config();
 
 // Get your password from .env
 
-// Build the connection
+// Create the connection to the DB
 var connection = mysql.createConnection({
     host: "localhost",
 
@@ -28,21 +28,17 @@ var connection = mysql.createConnection({
 // Start the connection
 connection.connect((err) => {
     if (err) throw err;
-    afterConnection();
+    promptUser();
 });
 
-afterConnection = () => {
-    //Prompt the user to find out what they want to do.
-    promptUser();
-};
 
 promptUser = () => {
-    inquirer.prompt([{
+    inquirer.prompt({
         type: "list",
         name: "choice",
         message: "What would you like to do?",
         choices: ["View products", "Exit"]
-    }]).then((answer) => {
+    }).then((answer) => {
         const custChoice = answer.choice;
         switch (custChoice) {
             case 'View products':
@@ -54,7 +50,7 @@ promptUser = () => {
             // If user selects nothing and just hits enter, program exits
             default:
                 exit();
-        }
+        };
     });
 };
 
@@ -166,3 +162,4 @@ exit = () => {
 // 1. .env file to store my DB password NOT WORKING
 // 2. Account for user input! Example: if the user inputs a non number on either prompt..it breaks the script!
 // 3. User should be able to exit program at any time
+// 4. Timeout for insufficient quantity ??
