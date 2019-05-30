@@ -59,11 +59,9 @@ viewProducts = () => {
     //Read from the database and return everything
     const read = `SELECT * FROM products`;
     connection.query(read, (err, resp) => {
-        if (err) {
-            console.log(err);
-        };
+        if (err) throw err;
 
-        // Data array that will be formatted into a table
+        // Data array that will be formatted into a table with a header
         let data = [['Item ID', 'Product Name', 'Department Name', 'Price', 'Stock Quantity']];
         var output;
         // loop through the response and push arrays to the data array
@@ -79,7 +77,6 @@ viewProducts = () => {
         askUser();
     });
 };
-
 
 
 askUser = () => {
@@ -122,6 +119,7 @@ askUser = () => {
         });
 };
 
+
 updateStock = (stock, numberToBuy, itemToBuy, productName, price) => {
     connection.query(`UPDATE products SET ? WHERE ?`, [{ stock_quantity: stock - numberToBuy }, { item_id: itemToBuy }], function (err, resp) {
         if (err) throw err;
@@ -133,30 +131,10 @@ updateStock = (stock, numberToBuy, itemToBuy, productName, price) => {
 };
 
 
-
-
-
-
-
 exit = () => {
     // End the connection to the DB
     connection.end();
 };
-
-// Display all of the items for sale including ID's names, prices and products
-
-// Prompt two messages
-
-// Ask ID of item they would like to buy
-// how many units they would like to buy
-
-// then application should check if store has enough product
-// if not app should tell the customer and prevent the order
-
-// if store DOES have enough to fill order...fulfill their order by removing it from the DB and tell them it has been shipped
-// and then display the total cost to the customer
-
-
 
 // TO DO
 // 1. .env file to store my DB password NOT WORKING
