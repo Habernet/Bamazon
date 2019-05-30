@@ -62,7 +62,7 @@ viewProducts = () => {
         };
 
         // Data array that will be formatted into a table
-        let data = [];
+        let data = [['Item ID', 'Product Name', 'Department Name', 'Price', 'Stock Quantity']];
         var output;
         // loop through the response and push arrays to the data array
         for (let i = 0; i < resp.length; i++) {
@@ -100,14 +100,26 @@ askUser = () => {
         .then(answers => {
             itemToBuy = answers.purchase.toString();
             numberToBuy = answers.number.toString();
-            console.log(itemToBuy, numberToBuy);
             var inst = `SELECT * FROM products WHERE item_id = '` + itemToBuy + `'`;
-            console.log("Instructions for MYSQL" + inst);
+
+            // Variable for holding the stock quantity
+            var stock;
+            // Variable for holding how much it will cost
+
             connection.query(inst, (err, resp) => {
                 if (err) {
                     console.log(err);
                 };
-                console.log(resp);
+                // Grab the stock_quantity
+                stock = resp[0].stock_quantity;
+
+                if (numberToBuy > stock) {
+                    console.log("I'm sorry! Bamazon cannot fulfill this order. There is not enough stock.");
+                } else {
+                    console.log("We will now update the DB and send you a receipt of your purchase!");
+                    // update the databse and send receipt to console
+                };
+                promptUser();
             });
         });
 };
@@ -140,4 +152,4 @@ exit = () => {
 
 // TO DO
 // 1. .env file to store my DB password
-// 2. Add a table head so the user can see what is what
+// 2. Account for user input! Example: if the user inputs a non number on either prompt..it breaks the
