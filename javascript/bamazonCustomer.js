@@ -2,6 +2,12 @@ var mysql = require("mysql");
 const inquirer = require("inquirer");
 const { table } = require('table');
 
+// THIS IS NOT WORKING
+const dotenv = require("dotenv");
+dotenv.config();
+
+
+// Get your password from .env
 
 // Build the connection
 var connection = mysql.createConnection({
@@ -13,7 +19,7 @@ var connection = mysql.createConnection({
     // Your username
     user: "root",
 
-    // Your password
+
     password: "SQLmeajob1",
     database: "bamazon"
 });
@@ -81,20 +87,16 @@ viewProducts = () => {
 
 
 askUser = () => {
-    const firstQuestion = {
+    const prompts = [{
         type: 'input',
         name: 'purchase',
-        message: ("What would you like to buy? (type the ID number): ")
-    };
-    const secondQuestion = {
+        message: ("What would you like to buy? (type the Item ID number): ")
+    }, {
         type: 'input',
         name: 'number',
-        message: ("How many would you like to buy? (type the number): ")
-    };
-    const prompts = [firstQuestion, secondQuestion]
+        message: ("How many would you like to buy? (type a number): ")
+    }];
 
-
-    //This part needs work!
     inquirer
         .prompt(prompts)
         .then(answers => {
@@ -102,8 +104,6 @@ askUser = () => {
             numberToBuy = answers.number.toString();
             var inst = `SELECT * FROM products WHERE item_id = '` + itemToBuy + `'`;
 
-            // Variable for holding the stock quantity
-            var stock;
             // Variable for holding how much it will cost
 
             connection.query(inst, (err, resp) => {
@@ -111,17 +111,29 @@ askUser = () => {
                     console.log(err);
                 };
                 // Grab the stock_quantity
-                stock = resp[0].stock_quantity;
+                var stock = resp[0].stock_quantity;
+                var price = resp[0].price;
+                var productName = resp[0].product_name;
+
 
                 if (numberToBuy > stock) {
                     console.log("I'm sorry! Bamazon cannot fulfill this order. There is not enough stock.");
+                    promptUser();
                 } else {
-                    console.log("We will now update the DB and send you a receipt of your purchase!");
-                    // update the databse and send receipt to console
+                    updateStock(stock, numberToBuy, itemToBuy, productName, price);
                 };
-                promptUser();
             });
         });
+};
+
+updateStock = (stock, numberToBuy, itemToBuy, productName, price) => {
+    connection.query(`UPDATE products SET ? WHERE ?`, [{ stock_quantity: stock - numberToBuy }, { item_id: itemToBuy }], function (err, resp) {
+        if (err) throw err;
+        console.log('You have successfully completed a purchase! The items will be shipped shortly. Here is your receipt!' + '\n');
+        console.log("Items purchased: " + numberToBuy + " x " + productName);
+        console.log("Price: " + price * numberToBuy);
+        promptUser();
+    });
 };
 
 
@@ -151,5 +163,6 @@ exit = () => {
 
 
 // TO DO
-// 1. .env file to store my DB password
-// 2. Account for user input! Example: if the user inputs a non number on either prompt..it breaks the
+// 1. .env file to store my DB password NOT WORKING
+// 2. Account for user input! Example: if the user inputs a non number on either prompt..it breaks the script!
+// 3. User should be able to exit program at any time
