@@ -1,42 +1,6 @@
 var mysql = require("mysql");
 const inquirer = require("inquirer");
-const {table} = require('table');
-
-// BELOW ARE INSTRUCTIONS FOR CREATING THE PRODUCTS TABLE
-
-// var instructions = `CREATE TABLE products(
-//     item_id INT NOT NULL AUTO_INCREMENT,
-//     product_name VARCHAR(100) NOT NULL,
-//     department_name VARCHAR(40) NOT NULL,
-//     price INT NOT NULL,
-//     stock_quantity INT NOT NULL,
-//     PRIMARY KEY(item_id)
-//  );`
-
-// BELOW ARE INSTRUCTIONS FOR SEEDING THE TABLE
-
-// var instructions = `
-//     INSERT INTO products (product_name, department_name, price, stock_quantity)
-//     VALUES ('shirt', 'clothing', 20, 30),
-//     ('pants', 'clothing', 55, 30),
-//     ('underwear', 'clothing', 10, 30),
-//     ('socks', 'clothing', 15, 30),
-//     ('hoodie', 'clothing', 45, 30)
-//     ;`
-
-// UPDATE `table_name` SET `column_name` = `new_value' [WHERE condition];
-
-//  var instructions3 = `UPDATE nineties SET ? WHERE ?;`
-//  var stuff = [{song_title: 'hi'},{id:1}]
-function create() {
-    connection.query(instructions, (err, res) => {
-        if (err) {
-            console.log(err)
-        };
-        console.log(res);
-    });
-};
-
+const { table } = require('table');
 
 
 // Build the connection
@@ -54,66 +18,111 @@ var connection = mysql.createConnection({
     database: "bamazon"
 });
 
+
 // Start the connection
 connection.connect((err) => {
     if (err) throw err;
-    console.log("connected as id " + connection.threadId);
     afterConnection();
 });
 
-function afterConnection() {
-    // Do things after the connection is made
-    bamazon();
-    connection.end();
+afterConnection = () => {
+    //Prompt the user to find out what they want to do.
+    promptUser();
+};
+
+promptUser = () => {
+    inquirer.prompt([{
+        type: "list",
+        name: "choice",
+        message: "What would you like to do?",
+        choices: ["View products", "Exit"]
+    }]).then((answer) => {
+        const custChoice = answer.choice;
+        switch (custChoice) {
+            case 'View products':
+                viewProducts();
+                break;
+            case 'Exit':
+                exit();
+                break;
+            // If user selects nothing and just hits enter, program exits
+            default:
+                exit();
+        }
+    });
 };
 
 
-
-function bamazon() {
+viewProducts = () => {
     //Read from the database and return everything
     const read = `SELECT * FROM products`;
     connection.query(read, (err, resp) => {
         if (err) {
             console.log(err);
         };
+
         // Data array that will be formatted into a table
         let data = [];
         var output;
         // loop through the response and push arrays to the data array
-        for(let i = 0; i < resp.length; i++) {
+        for (let i = 0; i < resp.length; i++) {
             var product = [resp[i].item_id.toString(), resp[i].product_name, resp[i].department_name, resp[i].price.toString(), resp[i].stock_quantity.toString()]
             data.push(product);
         };
         // Use the parsed data to make a table in the console
         output = table(data);
-        console.log(output);
+        console.log(output + '\n');
 
-        // Ask questions!
-        const firstQuestion = {
-            type: 'input',
-            name: 'purchase',
-            message: ("What would you like to buy? (type the ID number): ")
-        };
-        const secondQuestion = {
-            type: 'input',
-            name: 'number',
-            message: ("How many would you like to buy? (type the number): ")
-        };
-        const prompts = [firstQuestion, secondQuestion ]
-
-
-        var itemToBuy;
-        var quantityToBuy;
-        inquirer
-            .prompt(prompts)
-            .then(answers => {
-                itemToBuy = answers.purchase;
-                quantityToBuy = answers.number;
-                console.log(itemToBuy, quantityToBuy);
-                // Ask another question...then query the DB!
-            });
+        // Now the user sees the products available, ask them what they would like to purchase.
+        askUser();
     });
 };
+
+
+
+askUser = () => {
+    const firstQuestion = {
+        type: 'input',
+        name: 'purchase',
+        message: ("What would you like to buy? (type the ID number): ")
+    };
+    const secondQuestion = {
+        type: 'input',
+        name: 'number',
+        message: ("How many would you like to buy? (type the number): ")
+    };
+    const prompts = [firstQuestion, secondQuestion]
+
+
+    //This part needs work!
+    inquirer
+        .prompt(prompts)
+        .then(answers => {
+            itemToBuy = answers.purchase.toString();
+            numberToBuy = answers.number.toString();
+            console.log(itemToBuy, numberToBuy);
+            var inst = `SELECT * FROM products WHERE item_id = '` + itemToBuy + `'`;
+            console.log("Instructions for MYSQL" + inst);
+            connection.query(inst, (err, resp) => {
+                if (err) {
+                    console.log(err);
+                };
+                console.log(resp);
+            });
+        });
+};
+
+
+
+
+
+
+
+exit = () => {
+    // End the connection to the DB
+    connection.end();
+};
+
 // Display all of the items for sale including ID's names, prices and products
 
 // Prompt two messages
@@ -126,3 +135,9 @@ function bamazon() {
 
 // if store DOES have enough to fill order...fulfill their order by removing it from the DB and tell them it has been shipped
 // and then display the total cost to the customer
+
+
+
+// TO DO
+// 1. .env file to store my DB password
+// 2. Add a table head so the user can see what is what
