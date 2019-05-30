@@ -28,7 +28,7 @@ promptUser = () => {
         choices: ["View products", "View low inventory", "Add to inventory", "Add a new product", "Exit"]
     }).then((answer) => {
         const managerChoice = answer.choice;
-        switch(managerChoice) {
+        switch (managerChoice) {
             case 'View products':
                 viewProducts();
                 break;
@@ -50,7 +50,7 @@ promptUser = () => {
     });
 };
 
-viewProducts = () => { 
+viewProducts = () => {
     // If a manager selects View Products for Sale, the app should list every available item: the item IDs, names, prices, and quantities.
     const read = `SELECT * FROM products`;
     connection.query(read, (err, resp) => {
@@ -86,17 +86,60 @@ viewLowInventory = () => {
         console.log(output + '\n');
         promptUser();
     });
-
- };
+};
 
 addToInventory = () => {
     // If a manager selects Add to Inventory, your app should display a prompt that will let the manager "add more" of any item currently in the store.
 
- };
 
-addNewProduct = () => { 
+    // Display inventory (by running viewProducts) and ask which product manager would like to add more of
+    // Ask how much more
+    // Update the DB and then console log "x amount has been added successfully!"
+
+
+};
+
+addNewProduct = () => {
     // If a manager selects Add New Product, it should allow the manager to add a completely new product to the store.
+    // Ask the manager a set of questions in order to add the product
+    // We need the following:
+    // Product name, department name, price, initial stock quantity
+    // Update the database with this information and console log "product has been added successfully!"
+    const prompts = [{
+        type: 'input',
+        name: 'name',
+        message: ('What is the name of the product? ')
+    }, {
+        type: 'input',
+        name: 'dep_name',
+        message: ('What is the department it is sold in? ')
+    }, {
+        type: 'input',
+        name: 'price',
+        message: ('What is the price of the product? ')
+    }, {
+        type: 'input',
+        name: 'stock',
+        message: ('What is the inital amount of stock for the product? ')
+    }];
 
+    inquirer.prompt(prompts).then(answers => {
+        var inst = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES ('` + answers.name + `', ` + `'` + answers.dep_name + `', ` + answers.price + `,`  + answers.stock + `)`;
+        console.log(inst);
+        connection.query(inst, (err, resp) => {
+            if (err) throw err;
+            console.log(resp);
+            console.log("You have added the product to inventory!");
+            promptUser();
+        });
+    });
+
+
+    //     --     INSERT INTO products
+    // --         (product_name, department_name, price, stock_quantity)
+    // --     VALUES
+    // --         ('shirt', 'clothing', 20, 30)
+    // --     ;
 };
 
 exit = () => {
