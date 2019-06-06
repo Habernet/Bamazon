@@ -67,7 +67,7 @@ viewProducts = () => {
         output = table(data);
         console.log(output + '\n');
         // Ask the manager what to do after this is done
-        promptUser();
+        setTimeout(promptUser, 3000);
     });
 };
 
@@ -84,19 +84,33 @@ viewLowInventory = () => {
         };
         output = table(data);
         console.log(output + '\n');
-        promptUser();
+        setTimeout(promptUser, 3000);
     });
 };
 
 addToInventory = () => {
     // If a manager selects Add to Inventory, your app should display a prompt that will let the manager "add more" of any item currently in the store.
 
+    const prompts = [{
+        type: 'input',
+        name: 'item',
+        message: ('Which product do you want to increase the stock of? (Type the ID) ')
+    }, {
+        type: 'input',
+        name: 'amount',
+        message: ('How many do you wish to add to inventory? ')
+    }];
 
-    // Display inventory (by running viewProducts) and ask which product manager would like to add more of
-    // Ask how much more
-    // Update the DB and then console log "x amount has been added successfully!"
-
-
+    inquirer.prompt(prompts).then(answers => {
+        //I have to get the stock quantity first because I can't find syntax to just increase it by the answer.amount
+        
+        let inst = `UPDATE products SET stock_quantity=stock_quantity+` + answers.amount +  ` WHERE item_id=` + answers.item;
+        connection.query(inst, function (err, resp) {
+            if (err) throw err;
+            console.log("You have added to the inventory successfully!");
+            setTimeout(promptUser, 3000);
+        });
+    });
 };
 
 addNewProduct = () => {
@@ -124,29 +138,17 @@ addNewProduct = () => {
     }];
 
     inquirer.prompt(prompts).then(answers => {
-        var inst = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES ('` + answers.name + `', ` + `'` + answers.dep_name + `', ` + answers.price + `,`  + answers.stock + `)`;
+        var inst = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES ('` + answers.name + `', ` + `'` + answers.dep_name + `', ` + answers.price + `,` + answers.stock + `)`;
         console.log(inst);
         connection.query(inst, (err, resp) => {
             if (err) throw err;
-            console.log(resp);
             console.log("You have added the product to inventory!");
-            promptUser();
+            setTimeout(promptUser, 3000);
         });
     });
-
-
-    //     --     INSERT INTO products
-    // --         (product_name, department_name, price, stock_quantity)
-    // --     VALUES
-    // --         ('shirt', 'clothing', 20, 30)
-    // --     ;
 };
 
 exit = () => {
     // End the connection to the DB
     connection.end();
 };
-
-
-// TO DO
-//

@@ -12,20 +12,16 @@ dotenv.config();
 // Create the connection to the DB
 var connection = mysql.createConnection({
     host: "localhost",
-
     // Your port; if not 3306
     port: 3306,
-
     // Your username
     user: "root",
-
-
     password: "SQLmeajob1",
     database: "bamazon"
 });
 
 
-// Start the connection
+// Start the connection and program
 connection.connect((err) => {
     if (err) throw err;
     promptUser();
@@ -47,7 +43,6 @@ promptUser = () => {
             case 'Exit':
                 exit();
                 break;
-            // If user selects nothing and just hits enter, program exits
             default:
                 exit();
         };
@@ -96,8 +91,6 @@ askUser = () => {
             itemToBuy = answers.purchase.toString();
             numberToBuy = answers.number.toString();
             var inst = `SELECT * FROM products WHERE item_id = '` + itemToBuy + `'`;
-
-            // Variable for holding how much it will cost
 
             connection.query(inst, (err, resp) => {
                 if (err) {
