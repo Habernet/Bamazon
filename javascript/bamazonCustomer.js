@@ -94,7 +94,7 @@ askUser = () => {
 
             connection.query(inst, (err, resp) => {
                 if (err) {
-                    console.log(err);
+                    return console.log("I'm sorry, there was an error during your purchase attempt. Please try again!");
                 };
                 // Grab the stock_quantity
                 var stock = resp[0].stock_quantity;
@@ -115,7 +115,9 @@ askUser = () => {
 
 updateStock = (stock, numberToBuy, itemToBuy, productName, price) => {
     connection.query(`UPDATE products SET ? WHERE ?`, [{ stock_quantity: stock - numberToBuy }, { item_id: itemToBuy }], function (err, resp) {
-        if (err) throw err;
+        if (err) {
+            return console.log("I'm sorry there was an error during your purchase, please try again!");
+        };
         console.log('You have successfully completed a purchase! The items will be shipped shortly. Here is your receipt!' + '\n');
         console.log("Items purchased: " + numberToBuy + " x " + productName);
         console.log("Price: " + price * numberToBuy);
@@ -129,8 +131,6 @@ exit = () => {
     connection.end();
 };
 
-// TO DO
-// 1. .env file to store my DB password NOT WORKING
 // 2. Account for user input! Example: if the user inputs a non number on either prompt..it breaks the script!
 // 3. User should be able to exit program at any time
 // 4. Timeout for insufficient quantity ??
